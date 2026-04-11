@@ -216,6 +216,7 @@
       color: var(--text); font-size: .9rem; font-weight: 700;
       padding: .9rem .5rem; border-radius: 8px;
       cursor: pointer; transition: all .2s; text-align: center;
+      font-family: inherit; width: 100%;
     }
     .amount-btn:hover, .amount-btn.active {
       border-color: var(--accent2); background: rgba(255,107,0,.08); color: var(--accent2);
@@ -275,9 +276,35 @@
     footer .footer-logo span { color: var(--accent); }
 
     /* ── RESPONSIVE NAV ─────────────────────── */
+    .hamburger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 6px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px; transition: all .25s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: rgba(5,8,16,0.97); border-bottom: 1px solid var(--border);
+      padding: 1.25rem 1.5rem; z-index: 199; flex-direction: column; gap: .25rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: var(--text); text-decoration: none; font-size: .95rem;
+      font-weight: 500; padding: .7rem 0; border-bottom: 1px solid var(--border);
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--accent); }
+
     @media(max-width:700px){
       .nav-links { display: none; }
       nav { padding: 0 1.25rem; }
+      .hamburger { display: flex; }
     }
   </style>
 </head>
@@ -304,7 +331,15 @@
     <li><a href="#donate">Donate</a></li>
   </ul>
   <a class="nav-donate" href="#donate">Support Us</a>
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="closeMobileMenu()">About</a>
+  <a href="#models" onclick="closeMobileMenu()">Models</a>
+  <a href="#donate" onclick="closeMobileMenu()">Donate</a>
+</div>
 
 <!-- ── HERO ── -->
 <section class="hero" id="home">
@@ -567,15 +602,15 @@
 
           <!-- Preset amounts -->
           <div class="amount-grid">
-            <div class="amount-btn" onclick="selectAmount(this, 10)">$10</div>
-            <div class="amount-btn" onclick="selectAmount(this, 25)">$25</div>
-            <div class="amount-btn active" onclick="selectAmount(this, 50)">$50</div>
-            <div class="amount-btn" onclick="selectAmount(this, 100)">$100</div>
+            <button class="amount-btn" onclick="selectAmount(this, 10)">$10</button>
+            <button class="amount-btn" onclick="selectAmount(this, 25)">$25</button>
+            <button class="amount-btn active" onclick="selectAmount(this, 50)">$50</button>
+            <button class="amount-btn" onclick="selectAmount(this, 100)">$100</button>
           </div>
 
           <!-- Custom amount -->
           <div class="donate-custom">
-            <label>Custom Amount (USD)</label>
+            <label for="customAmount">Custom Amount (USD)</label>
             <input type="number" id="customAmount" placeholder="Enter amount..." min="1" />
           </div>
 
@@ -610,7 +645,7 @@
 
           <div class="donate-note">
             All donations support independent UAV development.<br/>
-            For questions or partnership inquiries contact us directly.
+            For questions or partnership inquiries <a href="https://am.linkedin.com/in/aghavard-khachatryan-241246382" target="_blank" rel="noopener noreferrer">contact us directly</a>.
           </div>
         </div>
       </div>
@@ -624,7 +659,7 @@
   <p style="margin-top:.4rem;">Kh-25 &bull; Kh-26 &bull; Future Kh-Series</p>
   <p style="margin-top:.75rem;font-size:.75rem;">Independent UAV design and manufacturing &mdash; 2026</p>
   <p style="margin-top:.75rem;">
-    <a href="https://am.linkedin.com/in/aghavard-khachatryan-241246382" target="_blank" style="color:var(--accent);text-decoration:none;font-size:.82rem;">LinkedIn — Aghavard Khachatryan</a>
+    <a href="https://am.linkedin.com/in/aghavard-khachatryan-241246382" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;font-size:.82rem;">LinkedIn — Aghavard Khachatryan</a>
   </p>
 </footer>
 
@@ -637,6 +672,19 @@
 
   // set default
   document.getElementById('customAmount').value = 50;
+
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    hamburger.classList.toggle('open', open);
+    hamburger.setAttribute('aria-expanded', open);
+  });
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('open');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', false);
+  }
 
   function donate(method) {
     const amount = document.getElementById('customAmount').value || 50;
