@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KhachatryanUAV — Precision Aerial Systems</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dark:    #080c14;
+      --darker:  #050810;
+      --card:    #0e1623;
+      --border:  #1a2640;
+      --accent:  #00c8ff;
+      --accent2: #ff6b00;
+      --text:    #cdd8e8;
+      --muted:   #5a7090;
+      --white:   #f0f6ff;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--dark); color: var(--text); line-height: 1.65; }
+    * { scrollbar-width: none; }
+    *::-webkit-scrollbar { display: none; }
+
+    /* ── NAV ────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 200;
+      background: rgba(5,8,16,0.90); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      height: 64px; padding: 0 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none;
+    }
+    .nav-logo-icon { width: 32px; height: 32px; }
+    .nav-logo-text { font-size: 1.15rem; font-weight: 800; color: var(--white); letter-spacing: 0.5px; }
+    .nav-logo-text span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.3px; transition: color .2s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-donate {
+      background: var(--accent2); color: #fff; border: none;
+      padding: 7px 20px; border-radius: 7px; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; text-decoration: none; transition: background .2s, transform .15s;
+    }
+    .nav-donate:hover { background: #ff8c33; transform: translateY(-1px); }
+
+    /* ── HERO ───────────────────────────────── */
+    .hero {
+      min-height: 100vh; padding: 7rem 2rem 5rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,200,255,.10) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,107,0,.07) 0%, transparent 60%),
+        var(--darker);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,200,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,255,.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,200,255,.08); border: 1px solid rgba(0,200,255,.25);
+      color: var(--accent); font-size: .72rem; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      padding: 6px 18px; border-radius: 999px; margin-bottom: 1.75rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 8vw, 5.5rem); font-weight: 900; line-height: 1.05;
+      color: var(--white); margin-bottom: 1.25rem; position: relative; z-index: 1;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub {
+      max-width: 560px; font-size: 1.05rem; color: var(--muted);
+      margin-bottom: 2.5rem; position: relative; z-index: 1;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+    .btn {
+      padding: .75rem 2rem; border-radius: 8px; font-size: .9rem; font-weight: 700;
+      cursor: pointer; text-decoration: none; transition: all .2s; display: inline-block;
+    }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: #33d4ff; transform: translateY(-2px); }
+    .btn-orange { background: var(--accent2); color: #fff; }
+    .btn-orange:hover { background: #ff8c33; transform: translateY(-2px); }
+    .btn-ghost { border: 1px solid var(--border); color: var(--text); background: transparent; }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* hero drone SVG */
+    .hero-drone { margin-top: 4rem; position: relative; z-index: 1; }
+    .hero-drone svg { width: min(520px, 90vw); filter: drop-shadow(0 0 50px rgba(0,200,255,.25)); }
+
+    /* ── SHARED SECTION STYLES ──────────────── */
+    section { padding: 6rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .sec-label {
+      display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--accent); margin-bottom: .6rem;
+    }
+    .sec-title { font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 800; color: var(--white); margin-bottom: .5rem; }
+    .sec-title span { color: var(--accent); }
+    .sec-sub { color: var(--muted); font-size: .95rem; margin-bottom: 3rem; }
+
+    /* ── ABOUT ──────────────────────────────── */
+    #about { background: var(--darker); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    @media(max-width:700px){ .about-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+    .about-text p { color: var(--muted); margin-bottom: 1rem; font-size: .95rem; }
+    .about-text p strong { color: var(--white); }
+    .about-pillars { display: flex; flex-direction: column; gap: .75rem; margin-top: 1.5rem; }
+    .pillar {
+      display: flex; align-items: center; gap: .75rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: .9rem 1.1rem; border-radius: 0 8px 8px 0;
+      font-size: .88rem; color: var(--text);
+    }
+    .pillar-icon { font-size: 1.2rem; }
+    .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .astat {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem; text-align: center;
+    }
+    .astat-num { font-size: 2.4rem; font-weight: 900; color: var(--accent); line-height: 1; }
+    .astat-label { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+
+    /* ── MODELS ─────────────────────────────── */
+    #models { background: var(--dark); }
+    .models-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media(max-width:700px){ .models-grid { grid-template-columns: 1fr; } }
+
+    .model-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      transition: border-color .25s, transform .25s;
+    }
+    .model-card:hover { border-color: var(--accent); transform: translateY(-6px); }
+    .model-card.kh26:hover { border-color: var(--accent2); }
+
+    .model-header {
+      padding: 2.5rem 2rem 2rem;
+      background: linear-gradient(135deg, #0d1c30 0%, #0a1424 100%);
+      display: flex; flex-direction: column; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .model-badge {
+      font-size: .65rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; padding: 4px 14px; border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .badge-cyan { background: rgba(0,200,255,.12); color: var(--accent); border: 1px solid rgba(0,200,255,.25); }
+    .badge-orange { background: rgba(255,107,0,.12); color: var(--accent2); border: 1px solid rgba(255,107,0,.25); }
+    .model-name { font-size: 2.5rem; font-weight: 900; color: var(--white); margin-bottom: .25rem; }
+    .model-tagline { font-size: .85rem; color: var(--muted); text-align: center; }
+
+    /* Kh-25 SVG drone */
+    .drone-kh25 { margin: 1.5rem auto; }
+    .drone-kh25 svg { width: 220px; filter: drop-shadow(0 0 20px rgba(0,200,255,.35)); }
+
+    /* Kh-26 SVG drone */
+    .drone-kh26 { margin: 1.5rem auto; }
+    .drone-kh26 svg { width: 220px; filter: drop-shadow(0 0 20px rgba(255,107,0,.35)); }
+
+    .model-body { padding: 1.75rem 2rem; }
+    .model-specs { list-style: none; display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.5rem; }
+    .model-specs li {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .85rem; padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .model-specs li:last-child { border-bottom: none; padding-bottom: 0; }
+    .spec-key { color: var(--muted); }
+    .spec-val { color: var(--white); font-weight: 600; }
+    .model-features { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .feat-tag {
+      font-size: .72rem; font-weight: 600; padding: 4px 12px; border-radius: 999px;
+      background: rgba(255,255,255,.04); border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* ── DONATE ─────────────────────────────── */
+    #donate {
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,107,0,.10) 0%, transparent 70%),
+        var(--darker);
+    }
+    .donate-wrap { max-width: 680px; margin: 0 auto; }
+    .donate-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+    }
+    .donate-top {
+      background: linear-gradient(135deg, #1a100a 0%, #110c08 100%);
+      padding: 2.5rem 2rem; text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .donate-icon { font-size: 3rem; margin-bottom: .75rem; }
+    .donate-top h3 { font-size: 1.6rem; font-weight: 800; color: var(--white); margin-bottom: .5rem; }
+    .donate-top p { color: var(--muted); font-size: .9rem; max-width: 420px; margin: 0 auto; }
+    .donate-body { padding: 2rem; }
+
+    .amount-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; margin-bottom: 1.5rem; }
+    @media(max-width:500px){ .amount-grid { grid-template-columns: repeat(2,1fr); } }
+    .amount-btn {
+      background: var(--dark); border: 1px solid var(--border);
+      color: var(--text); font-size: .9rem; font-weight: 700;
+      padding: .9rem .5rem; border-radius: 8px;
+      cursor: pointer; transition: all .2s; text-align: center;
+    }
+    .amount-btn:hover, .amount-btn.active {
+      border-color: var(--accent2); background: rgba(255,107,0,.08); color: var(--accent2);
+    }
+
+    .donate-custom { margin-bottom: 1.5rem; }
+    .donate-custom label { display: block; font-size: .78rem; color: var(--muted); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; margin-bottom: .5rem; }
+    .donate-custom input {
+      width: 100%; background: var(--dark); border: 1px solid var(--border);
+      color: var(--white); font-size: 1rem; padding: .75rem 1rem; border-radius: 8px;
+      outline: none; transition: border-color .2s;
+    }
+    .donate-custom input:focus { border-color: var(--accent2); }
+
+    .donate-methods { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.5rem; }
+    .method-btn {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--dark); border: 1px solid var(--border);
+      color: var(--text); font-size: .88rem; font-weight: 600;
+      padding: .9rem 1.25rem; border-radius: 10px;
+      cursor: pointer; transition: all .2s; text-align: left; width: 100%;
+    }
+    .method-btn:hover { border-color: var(--accent2); background: rgba(255,107,0,.06); }
+    .method-icon { font-size: 1.4rem; }
+    .method-info { display: flex; flex-direction: column; }
+    .method-name { font-weight: 700; color: var(--white); }
+    .method-desc { font-size: .75rem; color: var(--muted); }
+    .method-arrow { margin-left: auto; color: var(--muted); font-size: .8rem; }
+
+    .donate-note {
+      text-align: center; font-size: .78rem; color: var(--muted);
+      border-top: 1px solid var(--border); padding-top: 1.25rem;
+    }
+    .donate-note a { color: var(--accent); text-decoration: none; }
+
+    /* progress bar */
+    .funding-progress { margin-bottom: 2rem; }
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: .5rem; }
+    .progress-label { font-size: .8rem; color: var(--muted); }
+    .progress-amount { font-size: .8rem; color: var(--white); font-weight: 700; }
+    .progress-bar { height: 8px; background: var(--dark); border-radius: 999px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent2), #ffb347);
+      border-radius: 999px;
+      width: 34%;
+    }
+    .progress-goal { font-size: .72rem; color: var(--muted); margin-top: .4rem; text-align: right; }
+
+    /* ── FOOTER ─────────────────────────────── */
+    footer {
+      background: var(--darker); border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem; text-align: center;
+      color: var(--muted); font-size: .82rem;
+    }
+    footer .footer-logo { font-size: 1rem; font-weight: 800; color: var(--white); margin-bottom: .5rem; }
+    footer .footer-logo span { color: var(--accent); }
+
+    /* ── RESPONSIVE NAV ─────────────────────── */
+    @media(max-width:700px){
+      .nav-links { display: none; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="#">
+    <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none">
+      <!-- Fuselage -->
+      <path d="M16,2 C17,2 17.5,8 17.5,13 L17.5,25 C17.5,28 17,30 16,31 C15,30 14.5,28 14.5,25 L14.5,13 C14.5,8 15,2 16,2 Z" fill="#00c8ff" opacity=".8"/>
+      <!-- Main wings -->
+      <path d="M16.5,10 L17.5,13 L30,19 L30,16 L16.5,10 Z" fill="#00c8ff" opacity=".65"/>
+      <path d="M15.5,10 L14.5,13 L2,19 L2,16 L15.5,10 Z" fill="#00c8ff" opacity=".65"/>
+      <!-- Tail stabs -->
+      <path d="M16.5,23 L17,26 L24,28 L24,26 L16.5,23 Z" fill="#00c8ff" opacity=".5"/>
+      <path d="M15.5,23 L15,26 L8,28 L8,26 L15.5,23 Z" fill="#00c8ff" opacity=".5"/>
+    </svg>
+    <span class="nav-logo-text"><span>Khachatryan</span>UAV</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#models">Models</a></li>
+    <li><a href="#donate">Donate</a></li>
+  </ul>
+  <a class="nav-donate" href="#donate">Support Us</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" id="home">
+  <div class="hero-eyebrow">
+    <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#00c8ff"/></svg>
+    Armenian UAV Engineering
+  </div>
+  <h1><em>KhachatryanUAV</em><br/>Built to Fly.<br/>Built to Last.</h1>
+  <p class="hero-sub">Designing and manufacturing high-performance, long-range FPV fixed-wing UAVs — built on SolidWorks simulation, ELRS radio, and precision engineering.</p>
+  <div class="hero-btns">
+    <a class="btn btn-primary" href="#models">Our Models</a>
+    <a class="btn btn-orange" href="#donate">Support Development</a>
+    <a class="btn btn-ghost" href="#about">About Us</a>
+  </div>
+
+  <div class="hero-drone">
+    <svg viewBox="0 0 520 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Fuselage -->
+      <path d="M260,14 C264,14 267,48 268,88 L268,198 C268,230 265,272 260,280 C255,272 252,230 252,198 L252,88 C253,48 256,14 260,14 Z" fill="#111f38" stroke="#00c8ff" stroke-width="1.5"/>
+      <!-- Cockpit window -->
+      <rect x="255" y="32" width="10" height="32" rx="4" fill="#0a1728" stroke="#00c8ff" stroke-width="1" opacity=".75"/>
+      <!-- Main wings (right) -->
+      <path d="M264,72 L268,92 L494,148 L495,132 L264,72 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1.3"/>
+      <!-- Main wings (left) -->
+      <path d="M256,72 L252,92 L26,148 L25,132 L256,72 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1.3"/>
+      <!-- Wing panel lines -->
+      <line x1="268" y1="92" x2="494" y2="148" stroke="#00c8ff" stroke-width=".5" opacity=".25"/>
+      <line x1="252" y1="92" x2="26"  y2="148" stroke="#00c8ff" stroke-width=".5" opacity=".25"/>
+      <!-- Engine pods on wings -->
+      <ellipse cx="390" cy="128" rx="18" ry="6" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1.1"/>
+      <ellipse cx="130" cy="128" rx="18" ry="6" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1.1"/>
+      <!-- Horizontal stabilizers (right) -->
+      <path d="M264,220 L267,230 L375,242 L375,232 L264,220 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1"/>
+      <!-- Horizontal stabilizers (left) -->
+      <path d="M256,220 L253,230 L145,242 L145,232 L256,220 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1"/>
+      <!-- Vertical fin -->
+      <rect x="257" y="205" width="6" height="68" rx="1" fill="#00c8ff" opacity=".28"/>
+      <!-- Front-mounted motor spinner -->
+      <circle cx="260" cy="18" r="7" fill="#0a1220" stroke="#00c8ff" stroke-width="1.5"/>
+      <circle cx="260" cy="18" r="3" fill="#00c8ff" opacity=".8"/>
+      <!-- Tractor propeller disc -->
+      <ellipse cx="260" cy="14" rx="46" ry="7" fill="#00c8ff" opacity=".15"/>
+      <ellipse cx="260" cy="14" rx="7"  ry="46" fill="#00c8ff" opacity=".10"/>
+      <!-- Prop spin rings -->
+      <circle cx="260" cy="14" r="20" fill="none" stroke="#00c8ff" stroke-width=".6" opacity=".25"/>
+      <circle cx="260" cy="14" r="34" fill="none" stroke="#00c8ff" stroke-width=".4" opacity=".12"/>
+      <!-- Payload pod -->
+      <rect x="253" y="108" width="14" height="36" rx="4" fill="#0a1220" stroke="#00c8ff" stroke-width="1.1"/>
+      <circle cx="260" cy="129" r="5" fill="#00c8ff" opacity=".35"/>
+      <!-- Tail end cap -->
+      <circle cx="260" cy="274" r="4" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1" opacity=".5"/>
+      <!-- Navigation LEDs -->
+      <circle cx="494" cy="138" r="4.5" fill="#ff3355" opacity=".95"/>
+      <circle cx="26"  cy="138" r="4.5" fill="#00ff88" opacity=".95"/>
+      <!-- Model label -->
+      <text x="220" y="165" fill="#00c8ff" font-size="11" font-family="monospace" font-weight="bold" opacity=".6">Kh-Series</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <span class="sec-label">Who We Are</span>
+        <h2 class="sec-title">KhachatryanUAV</h2>
+        <p>Established in 2026, KhachatryanUAV is at the forefront of aerospace innovation — specializing in the design and manufacturing of <strong>high-performance, long-range FPV fixed-wing UAVs</strong>.</p>
+        <p>Our aircraft use a front-mounted motor configuration for optimal pull-propeller aerodynamics and flight stability. Every design is validated through <strong>SolidWorks CFD and FEA simulation</strong> — covering drag reduction, lift optimization, thermal management, and structural stress testing before a single part is printed.</p>
+        <p>Current models run the <strong>MatekSYS F405-Wing-V2</strong> flight controller and <strong>ExpressLRS (ELRS)</strong> radio link — purpose-built for long-range, reliable, open-source operation.</p>
+        <div class="about-pillars">
+          <div class="pillar"><span class="pillar-icon">🛠️</span> SolidWorks CFD &amp; FEA validated designs</div>
+          <div class="pillar"><span class="pillar-icon">📡</span> ExpressLRS long-range radio (LoRa, 1000Hz)</div>
+          <div class="pillar"><span class="pillar-icon">🖨️</span> 3D-printed &amp; carbon fiber construction</div>
+          <div class="pillar"><span class="pillar-icon">🎯</span> Front-mounted motor for pull-propeller efficiency</div>
+        </div>
+      </div>
+      <div class="about-stats">
+        <div class="astat">
+          <div class="astat-num">2m</div>
+          <div class="astat-label">Wingspan on Both Models</div>
+        </div>
+        <div class="astat">
+          <div class="astat-num">2+</div>
+          <div class="astat-label">Hours Endurance (Kh-26)</div>
+        </div>
+        <div class="astat">
+          <div class="astat-num">ELRS</div>
+          <div class="astat-label">Long-Range Radio Link</div>
+        </div>
+        <div class="astat">
+          <div class="astat-num">🇦🇲</div>
+          <div class="astat-label">Armenian Engineering</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODELS ── -->
+<section id="models">
+  <div class="container">
+    <span class="sec-label">Our Aircraft</span>
+    <h2 class="sec-title">Current <span>Models</span></h2>
+    <p class="sec-sub">Two production-ready UAV platforms engineered for different roles.</p>
+
+    <div class="models-grid">
+
+      <!-- KH-25 -->
+      <div class="model-card">
+        <div class="model-header">
+          <div class="model-badge badge-cyan">EXPERIMENTAL</div>
+          <div class="model-name">Kh-25</div>
+          <div class="model-tagline">Flying laboratory. Research. Sensor testing.</div>
+          <div class="drone-kh25">
+            <svg viewBox="0 0 240 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Fuselage -->
+              <path d="M120,8 C123,8 125,32 126,58 L126,128 C126,152 124,172 120,178 C116,172 114,152 114,128 L114,58 C115,32 117,8 120,8 Z" fill="#111f38" stroke="#00c8ff" stroke-width="1.5"/>
+              <!-- Cockpit window -->
+              <rect x="116" y="22" width="8" height="22" rx="3" fill="#0a1728" stroke="#00c8ff" stroke-width=".9" opacity=".8"/>
+              <!-- Main wings (right) -->
+              <path d="M123,46 L126,60 L222,92 L223,80 L123,46 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1.2"/>
+              <!-- Main wings (left) -->
+              <path d="M117,46 L114,60 L18,92 L17,80 L117,46 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1.2"/>
+              <!-- Horizontal stabs (right) -->
+              <path d="M123,132 L126,140 L176,148 L176,140 L123,132 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1"/>
+              <!-- Horizontal stabs (left) -->
+              <path d="M117,132 L114,140 L64,148 L64,140 L117,132 Z" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1"/>
+              <!-- Vertical fin -->
+              <rect x="118" y="124" width="4" height="52" rx="1" fill="#00c8ff" opacity=".28"/>
+              <!-- Front motor spinner -->
+              <circle cx="120" cy="14" r="6" fill="#0a1220" stroke="#00c8ff" stroke-width="1.3"/>
+              <circle cx="120" cy="14" r="2.5" fill="#00c8ff" opacity=".8"/>
+              <!-- Tractor prop disc -->
+              <ellipse cx="120" cy="10" rx="30" ry="5" fill="#00c8ff" opacity=".15"/>
+              <ellipse cx="120" cy="10" rx="5"  ry="30" fill="#00c8ff" opacity=".10"/>
+              <circle cx="120" cy="10" r="14" fill="none" stroke="#00c8ff" stroke-width=".5" opacity=".2"/>
+              <!-- Tail end cap -->
+              <circle cx="120" cy="173" r="3" fill="#0d1a2e" stroke="#00c8ff" stroke-width="1" opacity=".4"/>
+              <!-- LEDs -->
+              <circle cx="221" cy="82" r="3" fill="#ff3355" opacity=".9"/>
+              <circle cx="19"  cy="82" r="3" fill="#00ff88" opacity=".9"/>
+            </svg>
+          </div>
+        </div>
+        <div class="model-body">
+          <ul class="model-specs">
+            <li><span class="spec-key">Role</span><span class="spec-val">Experimental Research Platform</span></li>
+            <li><span class="spec-key">Wingspan</span><span class="spec-val">2 meters</span></li>
+            <li><span class="spec-key">Weight</span><span class="spec-val">~1,200 g</span></li>
+            <li><span class="spec-key">Construction</span><span class="spec-val">Foam Board</span></li>
+            <li><span class="spec-key">Sensors</span><span class="spec-val">Doppler Radar + Multi-sensor</span></li>
+            <li><span class="spec-key">Propulsion</span><span class="spec-val">Front-mounted Electric Motor</span></li>
+          </ul>
+          <div class="model-features">
+            <span class="feat-tag">Low Wing Loading</span>
+            <span class="feat-tag">Doppler Radar</span>
+            <span class="feat-tag">Multi-Sensor Suite</span>
+            <span class="feat-tag">Foam Board Build</span>
+            <span class="feat-tag">Easy Field Repair</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KH-26 -->
+      <div class="model-card kh26">
+        <div class="model-header">
+          <div class="model-badge badge-orange">LONG-RANGE</div>
+          <div class="model-name" style="color:#ff8c33;">Kh-26</div>
+          <div class="model-tagline">2-meter span. 2+ hours. Built to go far.</div>
+          <div class="drone-kh26">
+            <svg viewBox="0 0 240 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Fuselage — wider/heavier -->
+              <path d="M120,7 C126,7 131,33 132,60 L133,126 C133,153 129,172 120,178 C111,172 107,153 107,126 L108,60 C109,33 114,7 120,7 Z" fill="#1f1008" stroke="#ff6b00" stroke-width="1.5"/>
+              <!-- Cockpit window -->
+              <rect x="115" y="22" width="10" height="26" rx="4" fill="#0f0804" stroke="#ff6b00" stroke-width="1" opacity=".85"/>
+              <!-- Main wings (right) — larger sweep -->
+              <path d="M126,44 L132,60 L226,96 L227,82 L126,44 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.3"/>
+              <!-- Main wings (left) -->
+              <path d="M114,44 L108,60 L14,96 L13,82 L114,44 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.3"/>
+              <!-- Engine pods on wings -->
+              <ellipse cx="186" cy="80" rx="16" ry="5.5" fill="#0a0804" stroke="#ff6b00" stroke-width="1.1"/>
+              <ellipse cx="54"  cy="80" rx="16" ry="5.5" fill="#0a0804" stroke="#ff6b00" stroke-width="1.1"/>
+              <!-- Horizontal stabs (right) — wider -->
+              <path d="M126,132 L130,142 L186,150 L186,141 L126,132 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.1"/>
+              <!-- Horizontal stabs (left) -->
+              <path d="M114,132 L110,142 L54,150 L54,141 L114,132 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.1"/>
+              <!-- Vertical fin -->
+              <rect x="118" y="122" width="4" height="54" rx="1" fill="#ff6b00" opacity=".28"/>
+              <!-- Front motor spinner (larger) -->
+              <circle cx="120" cy="13" r="7" fill="#0a0804" stroke="#ff6b00" stroke-width="1.5"/>
+              <circle cx="120" cy="13" r="3" fill="#ff6b00" opacity=".8"/>
+              <!-- Tractor prop disc -->
+              <ellipse cx="120" cy="9" rx="34" ry="6" fill="#ff6b00" opacity=".16"/>
+              <ellipse cx="120" cy="9" rx="6"  ry="34" fill="#ff6b00" opacity=".10"/>
+              <circle cx="120" cy="9" r="16" fill="none" stroke="#ff6b00" stroke-width=".5" opacity=".2"/>
+              <!-- Under-fuselage payload bay -->
+              <rect x="113" y="78" width="14" height="32" rx="4" fill="#0a0804" stroke="#ff6b00" stroke-width="1.1"/>
+              <circle cx="120" cy="97" r="5" fill="#ff6b00" opacity=".4"/>
+              <!-- Tail end cap -->
+              <circle cx="120" cy="173" r="4" fill="#0a0804" stroke="#ff6b00" stroke-width="1" opacity=".4"/>
+              <!-- LEDs -->
+              <circle cx="225" cy="84" r="3.5" fill="#ff3355" opacity=".9"/>
+              <circle cx="15"  cy="84" r="3.5" fill="#00ff88" opacity=".9"/>
+            </svg>
+          </div>
+        </div>
+        <div class="model-body">
+          <ul class="model-specs">
+            <li><span class="spec-key">Role</span><span class="spec-val">Long-Range Fixed-Wing UAV</span></li>
+            <li><span class="spec-key">Wingspan</span><span class="spec-val">2 meters</span></li>
+            <li><span class="spec-key">Endurance</span><span class="spec-val">2+ hours</span></li>
+            <li><span class="spec-key">Construction</span><span class="spec-val">3D Print + Carbon Fiber</span></li>
+            <li><span class="spec-key">Flight Controller</span><span class="spec-val">Matek F405 Wing V2</span></li>
+            <li><span class="spec-key">Radio</span><span class="spec-val">ExpressLRS (ELRS)</span></li>
+          </ul>
+          <div class="model-features">
+            <span class="feat-tag">3D Print + Carbon Fiber</span>
+            <span class="feat-tag">Matek F405 Wing V2</span>
+            <span class="feat-tag">ExpressLRS Radio</span>
+            <span class="feat-tag">SolidWorks CFD Tested</span>
+            <span class="feat-tag">Long Endurance</span>
+            <span class="feat-tag">Front-mount Motor</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── DONATE ── -->
+<section id="donate">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:2.5rem;">
+      <span class="sec-label">Support the Mission</span>
+      <h2 class="sec-title">Help Us <span style="color:var(--accent2);">Keep Flying</span></h2>
+      <p class="sec-sub" style="max-width:500px;margin:0 auto 3rem;">Your support directly funds component procurement, field testing, and the development of future Kh-series aircraft.</p>
+    </div>
+
+    <div class="donate-wrap">
+      <div class="donate-card">
+        <div class="donate-top">
+          <div class="donate-icon">✈️</div>
+          <h3>Support KhachatryanUAV</h3>
+          <p>Every contribution — big or small — helps keep our development program running and our aircraft in the air.</p>
+        </div>
+
+        <div class="donate-body">
+
+          <!-- Progress -->
+          <div class="funding-progress">
+            <div class="progress-header">
+              <span class="progress-label">Current Funding Round</span>
+              <span class="progress-amount">$3,400 raised</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="progress-goal">Goal: $10,000 — Next-gen propulsion system for Kh-27</div>
+          </div>
+
+          <!-- Preset amounts -->
+          <div class="amount-grid">
+            <div class="amount-btn" onclick="selectAmount(this, 10)">$10</div>
+            <div class="amount-btn" onclick="selectAmount(this, 25)">$25</div>
+            <div class="amount-btn active" onclick="selectAmount(this, 50)">$50</div>
+            <div class="amount-btn" onclick="selectAmount(this, 100)">$100</div>
+          </div>
+
+          <!-- Custom amount -->
+          <div class="donate-custom">
+            <label>Custom Amount (USD)</label>
+            <input type="number" id="customAmount" placeholder="Enter amount..." min="1" />
+          </div>
+
+          <!-- Payment methods -->
+          <p style="font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:.75rem;">Choose Method</p>
+          <div class="donate-methods">
+            <button class="method-btn" onclick="donate('paypal')">
+              <span class="method-icon">💳</span>
+              <span class="method-info">
+                <span class="method-name">PayPal</span>
+                <span class="method-desc">Fast and secure online payment</span>
+              </span>
+              <span class="method-arrow">→</span>
+            </button>
+            <button class="method-btn" onclick="donate('crypto')">
+              <span class="method-icon">₿</span>
+              <span class="method-info">
+                <span class="method-name">Cryptocurrency</span>
+                <span class="method-desc">BTC, ETH, USDT accepted</span>
+              </span>
+              <span class="method-arrow">→</span>
+            </button>
+            <button class="method-btn" onclick="donate('bank')">
+              <span class="method-icon">🏦</span>
+              <span class="method-info">
+                <span class="method-name">Bank Transfer</span>
+                <span class="method-desc">Direct wire / SWIFT</span>
+              </span>
+              <span class="method-arrow">→</span>
+            </button>
+          </div>
+
+          <div class="donate-note">
+            All donations support independent UAV development.<br/>
+            For questions or partnership inquiries contact us directly.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo"><span>Khachatryan</span>UAV</div>
+  <p style="margin-top:.4rem;">Kh-25 &bull; Kh-26 &bull; Future Kh-Series</p>
+  <p style="margin-top:.75rem;font-size:.75rem;">Independent UAV design and manufacturing &mdash; 2026</p>
+  <p style="margin-top:.75rem;">
+    <a href="https://am.linkedin.com/in/aghavard-khachatryan-241246382" target="_blank" style="color:var(--accent);text-decoration:none;font-size:.82rem;">LinkedIn — Aghavard Khachatryan</a>
+  </p>
+</footer>
+
+<script>
+  function selectAmount(el, amount) {
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('customAmount').value = amount;
+  }
+
+  // set default
+  document.getElementById('customAmount').value = 50;
+
+  function donate(method) {
+    const amount = document.getElementById('customAmount').value || 50;
+    const messages = {
+      paypal: `Redirecting to PayPal for $${amount} donation...`,
+      crypto: `Opening crypto wallet for $${amount} equivalent donation...`,
+      bank: `Showing bank transfer details for $${amount}...`
+    };
+    alert(messages[method] + '\n\n(Connect your payment processor here.)');
+  }
+</script>
+</body>
+</html>
