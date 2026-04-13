@@ -84,6 +84,52 @@
       border-radius:3px; padding:0 5px; font-size:9px; color:var(--white); min-width:18px; text-align:center;
     }
 
+    /* ── Start Menu ── */
+    #start-menu {
+      position:fixed; inset:0; z-index:300;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,200,255,.07) 0%, transparent 65%), #050810;
+      display:flex; align-items:center; justify-content:center;
+      transition:opacity .5s ease;
+    }
+    #start-menu.hidden { opacity:0; pointer-events:none; }
+    #sm-inner { text-align:center; max-width:560px; padding:2rem 1rem; }
+    #sm-logo { font-size:2rem; font-weight:900; color:var(--white); letter-spacing:1px; margin-bottom:.3rem; }
+    #sm-logo span { color:var(--accent); }
+    #sm-badge {
+      font-size:.65rem; font-weight:700; letter-spacing:3px; text-transform:uppercase;
+      color:var(--accent); margin-bottom:2.2rem;
+      background:rgba(0,200,255,.08); border:1px solid rgba(0,200,255,.2);
+      display:inline-block; padding:4px 16px; border-radius:999px;
+    }
+    #sm-models { display:flex; gap:1rem; justify-content:center; margin-bottom:1.8rem; }
+    .sm-model-card {
+      flex:1; max-width:190px; padding:1.2rem 1rem; border-radius:12px;
+      border:1px solid var(--border); background:var(--card);
+      cursor:pointer; transition:all .2s;
+    }
+    .sm-model-card:hover { border-color:var(--accent); }
+    .sm-model-card.sm-active { border-color:var(--accent); background:rgba(0,200,255,.07); }
+    .sm-model-card[data-model="kh26"]:hover { border-color:var(--accent2); }
+    .sm-model-card[data-model="kh26"].sm-active { border-color:var(--accent2); background:rgba(168,85,247,.07); }
+    .sm-model-name { font-size:1.7rem; font-weight:900; color:var(--white); margin-bottom:.2rem; }
+    .sm-model-desc { font-size:.78rem; color:var(--muted); margin-bottom:.45rem; }
+    .sm-model-spec { font-size:.72rem; color:var(--accent); font-family:monospace; }
+    .sm-model-card[data-model="kh26"] .sm-model-spec { color:var(--accent2); }
+    #sm-controls {
+      display:flex; flex-wrap:wrap; gap:.55rem; justify-content:center;
+      margin-bottom:1.8rem; font-size:.78rem; color:var(--muted); font-family:monospace;
+    }
+    #sm-controls kbd {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:4px; padding:1px 7px; font-size:.72rem; color:var(--white);
+    }
+    #sm-launch {
+      background:var(--accent); color:#000; border:none;
+      padding:.85rem 2.8rem; border-radius:9px; font-size:.95rem; font-weight:800;
+      cursor:pointer; letter-spacing:1.5px; transition:all .2s; font-family:inherit;
+    }
+    #sm-launch:hover { background:#33d4ff; transform:translateY(-2px); }
+
     /* ── Crash overlay ── */
     #crash {
       display:none; position:fixed; top:52px; left:0; right:0; bottom:0; z-index:90;
@@ -167,6 +213,35 @@
 <div id="crash">
   <h2 id="crash-title">CRASHED</h2>
   <p id="crash-msg">Respawning…</p>
+</div>
+
+<div id="start-menu">
+  <div id="sm-inner">
+    <div id="sm-logo"><span>Khachatryan</span>UAV</div>
+    <div id="sm-badge">3D Flight Simulator</div>
+    <div id="sm-models">
+      <div class="sm-model-card sm-active" data-model="kh25" onclick="smSelectModel('kh25')">
+        <div class="sm-model-name">Kh-25</div>
+        <div class="sm-model-desc">Experimental Platform</div>
+        <div class="sm-model-spec">Max Speed ~95 u/s</div>
+      </div>
+      <div class="sm-model-card" data-model="kh26" onclick="smSelectModel('kh26')">
+        <div class="sm-model-name">Kh-26</div>
+        <div class="sm-model-desc">Long-Range UAV</div>
+        <div class="sm-model-spec">Max Speed ~115 u/s</div>
+      </div>
+    </div>
+    <div id="sm-controls">
+      <span><kbd>W / ↑</kbd> Pitch up</span>
+      <span><kbd>S / ↓</kbd> Pitch down</span>
+      <span><kbd>A / ←</kbd> Roll left</span>
+      <span><kbd>D / →</kbd> Roll right</span>
+      <span><kbd>Shift</kbd> Throttle +</span>
+      <span><kbd>Ctrl</kbd> Throttle −</span>
+      <span><kbd>R</kbd> Reset</span>
+    </div>
+    <button id="sm-launch" onclick="launchSim()">&#9654; LAUNCH SIMULATION</button>
+  </div>
 </div>
 
 <script src="three.min.js"></script>
@@ -660,16 +735,30 @@ function selectModel(m) {
   document.getElementById('b26').className = 'model-btn' + (m==='kh26'?' a26':'');
   document.getElementById('h-model').textContent = MODELS[m].label + ' TELEMETRY';
   document.getElementById('h-model').style.color = m==='kh25' ? 'var(--accent)' : 'var(--accent2)';
+  // sync start menu cards if still visible
+  document.querySelectorAll('.sm-model-card').forEach(c => {
+    c.classList.toggle('sm-active', c.dataset.model === m);
+  });
   buildMesh(m);
   spawn();
 }
 
-// ── Start ─────────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  buildMesh('kh25');
-  resize();
-  spawn();
+// ── Start menu ────────────────────────────────────────────────
+function smSelectModel(m) {
+  currentModel = m;
+  document.querySelectorAll('.sm-model-card').forEach(c => {
+    c.classList.toggle('sm-active', c.dataset.model === m);
+  });
+  document.getElementById('b25').className = 'model-btn' + (m==='kh25'?' a25':'');
+  document.getElementById('b26').className = 'model-btn' + (m==='kh26'?' a26':'');
+}
 
+function launchSim() {
+  const menu = document.getElementById('start-menu');
+  menu.classList.add('hidden');
+  menu.addEventListener('transitionend', () => menu.remove(), { once: true });
+  buildMesh(currentModel);
+  spawn();
   let last = performance.now();
   function loop(now) {
     const dt = Math.min((now - last) / 1000, 0.05);
@@ -682,6 +771,12 @@ window.addEventListener('load', () => {
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+}
+
+// ── Start ─────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  resize();
+  // Simulation loop starts when the user clicks LAUNCH in the start menu
 });
 </script>
 </body>
