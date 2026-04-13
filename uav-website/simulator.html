@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D UAV Flight Simulator — KhachatryanUAV</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --dark:#080c14; --card:#0e1623; --border:#1a2640;
+      --accent:#00c8ff; --accent2:#a855f7; --text:#cdd8e8; --muted:#5a7090; --white:#f0f6ff;
+    }
+    html, body { width:100%; height:100%; overflow:hidden; background:#050810; }
+    body { font-family:'Segoe UI', system-ui, sans-serif; }
+
+    nav {
+      position:fixed; top:0; width:100%; height:52px; z-index:200;
+      background:rgba(5,8,16,0.93); backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:1.1rem; padding:0 1.5rem;
+    }
+    .back-btn { color:var(--muted); text-decoration:none; font-size:.83rem; font-weight:600; transition:color .2s; }
+    .back-btn:hover { color:var(--accent); }
+    .nav-title { font-size:.92rem; font-weight:800; color:var(--white); }
+    .nav-title span { color:var(--accent); }
+    .nav-badge {
+      font-size:.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+      padding:3px 9px; border-radius:999px;
+      background:rgba(0,200,255,.08); color:var(--accent); border:1px solid rgba(0,200,255,.2);
+    }
+    .model-select { margin-left:auto; display:flex; gap:.5rem; align-items:center; }
+    .model-btn {
+      background:var(--card); border:1px solid var(--border); color:var(--muted);
+      font-size:.75rem; font-weight:700; padding:4px 12px; border-radius:6px;
+      cursor:pointer; transition:all .2s; font-family:inherit;
+    }
+    .model-btn.a25 { border-color:var(--accent); color:var(--accent); background:rgba(0,200,255,.08); }
+    .model-btn.a26 { border-color:var(--accent2); color:var(--accent2); background:rgba(168,85,247,.08); }
+
+    #c { position:fixed; top:52px; left:0; width:100vw; height:calc(100vh - 52px); display:block; }
+
+    /* ── HUD ── */
+    .hud-panel {
+      position:fixed; top:64px; left:16px; z-index:50; pointer-events:none;
+      background:rgba(8,12,20,0.80); border:1px solid rgba(0,200,255,.14);
+      border-radius:10px; padding:12px 14px; width:200px;
+      font-size:10.5px; font-family:monospace; color:var(--muted);
+      backdrop-filter:blur(8px);
+    }
+    .hud-panel .title { color:var(--accent); font-weight:700; font-size:11px; margin-bottom:10px; letter-spacing:1px; }
+    .hr { display:flex; justify-content:space-between; margin-bottom:6px; }
+    .hv { color:var(--text); font-weight:600; }
+    .hv.w { color:#ff4444; } .hv.c { color:#ffaa00; }
+    .bar-wrap { margin-bottom:8px; }
+    .bar-lbl { display:flex; justify-content:space-between; margin-bottom:3px; font-size:9px; }
+    .bar-track { height:7px; background:rgba(255,255,255,.06); border-radius:3px; overflow:hidden; }
+    .bar-fill { height:100%; border-radius:3px; transition:width .08s; }
+    .blink { animation:blink .75s infinite; font-weight:bold; font-size:11px; margin-top:6px; display:none; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── Stats ── */
+    #stats {
+      position:fixed; top:64px; right:16px; z-index:50; pointer-events:none;
+      background:rgba(8,12,20,0.80); border:1px solid rgba(0,200,255,.12);
+      border-radius:10px; padding:10px 14px; min-width:170px;
+      font-size:10.5px; font-family:monospace; color:var(--muted);
+      backdrop-filter:blur(8px);
+    }
+    #stats .big { font-size:15px; font-weight:700; color:var(--accent); margin:2px 0 8px; }
+    #stats .sub { font-size:13px; font-weight:700; color:var(--accent); margin-top:2px; }
+
+    /* ── Controls ── */
+    #ctrl {
+      position:fixed; bottom:14px; right:14px; z-index:50; pointer-events:none;
+      background:rgba(8,12,20,0.80); border:1px solid var(--border);
+      border-radius:10px; padding:10px 12px;
+      font-size:10px; font-family:monospace; color:var(--muted);
+      backdrop-filter:blur(8px); line-height:1.95;
+    }
+    #ctrl .row { display:flex; justify-content:space-between; gap:14px; }
+    #ctrl .desc { color:var(--text); }
+    #ctrl kbd {
+      display:inline-block; background:var(--card); border:1px solid var(--border);
+      border-radius:3px; padding:0 5px; font-size:9px; color:var(--white); min-width:18px; text-align:center;
+    }
+
+    /* ── Crash overlay ── */
+    #crash {
+      display:none; position:fixed; top:52px; left:0; right:0; bottom:0; z-index:90;
+      align-items:center; justify-content:center; flex-direction:column;
+      background:rgba(0,0,0,.45); backdrop-filter:blur(5px);
+    }
+    #crash.show { display:flex; }
+    #crash h2 { font-size:38px; color:#ff4444; font-family:monospace; letter-spacing:4px; text-shadow:0 0 30px #ff4444; margin-bottom:12px; }
+    #crash p  { color:var(--muted); font-family:monospace; font-size:14px; }
+
+    /* ── Touch controls ── */
+    #touch-overlay {
+      display:none; position:fixed; top:52px; left:0; right:0; bottom:0; z-index:60;
+      touch-action:none; user-select:none; -webkit-user-select:none;
+    }
+    @media (pointer:coarse) { #touch-overlay { display:block; } }
+    .touch-zone {
+      position:absolute; top:0; bottom:0; width:50%;
+      display:flex; align-items:flex-end; justify-content:center; padding-bottom:20px;
+    }
+    .touch-zone-l { left:0; border-right:1px solid rgba(0,200,255,.07); }
+    .touch-zone-r { right:0; }
+    .touch-hint { font-size:8px; font-family:monospace; color:rgba(0,200,255,.22); letter-spacing:1px; text-align:center; pointer-events:none; line-height:1.8; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="back-btn" href="index.html">&#8592; Back</a>
+  <span class="nav-title"><span>Khachatryan</span>UAV &mdash; 3D Simulator</span>
+  <span class="nav-badge">3D BETA</span>
+  <div class="model-select">
+    <button class="model-btn a25" id="b25" onclick="selectModel('kh25')">Kh-25</button>
+    <button class="model-btn"    id="b26" onclick="selectModel('kh26')">Kh-26</button>
+  </div>
+</nav>
+
+<canvas id="c"></canvas>
+
+<div class="hud-panel">
+  <div class="title" id="h-model">Kh-25 TELEMETRY</div>
+  <div class="hr"><span>AIRSPEED</span> <span class="hv" id="h-spd">—</span></div>
+  <div class="hr"><span>ALTITUDE</span> <span class="hv" id="h-alt">—</span></div>
+  <div class="hr"><span>PITCH</span>    <span class="hv" id="h-pitch">—</span></div>
+  <div class="hr"><span>ROLL</span>     <span class="hv" id="h-roll">—</span></div>
+  <div class="hr"><span>HEADING</span>  <span class="hv" id="h-hdg">—</span></div>
+  <div class="bar-wrap">
+    <div class="bar-lbl"><span>THROTTLE</span><span id="h-thr-pct">0%</span></div>
+    <div class="bar-track"><div class="bar-fill" id="h-thr" style="background:var(--accent);width:0%"></div></div>
+  </div>
+  <div class="bar-wrap">
+    <div class="bar-lbl"><span>BATTERY</span><span id="h-bat-pct">100%</span></div>
+    <div class="bar-track"><div class="bar-fill" id="h-bat" style="background:#00ff88;width:100%"></div></div>
+  </div>
+  <div class="blink" id="h-stall"  style="color:#ff4444">&#9888; STALL WARNING</div>
+  <div class="blink" id="h-lowbat" style="color:#ffaa00">&#9888; LOW BATTERY</div>
+</div>
+
+<div id="stats">
+  <div style="font-size:9px">DISTANCE FLOWN</div>
+  <div class="big" id="s-dist">0.0 km</div>
+  <div style="font-size:9px">MAX ALTITUDE</div>
+  <div class="sub"  id="s-alt">0 m</div>
+</div>
+
+<div id="ctrl">
+  <div class="row"><span><kbd>W</kbd><kbd>&#8593;</kbd></span><span class="desc">Pitch up</span></div>
+  <div class="row"><span><kbd>S</kbd><kbd>&#8595;</kbd></span><span class="desc">Pitch down</span></div>
+  <div class="row"><span><kbd>A</kbd><kbd>&#8592;</kbd></span><span class="desc">Roll left</span></div>
+  <div class="row"><span><kbd>D</kbd><kbd>&#8594;</kbd></span><span class="desc">Roll right</span></div>
+  <div class="row"><span><kbd>Shift</kbd></span>            <span class="desc">Throttle +</span></div>
+  <div class="row"><span><kbd>Ctrl</kbd></span>             <span class="desc">Throttle &minus;</span></div>
+  <div class="row"><span><kbd>R</kbd></span>                <span class="desc">Reset</span></div>
+</div>
+
+<div id="touch-overlay">
+  <div class="touch-zone touch-zone-l"><div class="touch-hint">DRAG TO STEER</div></div>
+  <div class="touch-zone touch-zone-r"><div class="touch-hint">DRAG UP<br>THROTTLE</div></div>
+</div>
+
+<div id="crash">
+  <h2 id="crash-title">CRASHED</h2>
+  <p id="crash-msg">Respawning…</p>
+</div>
+
+<script src="three.min.js"></script>
+<script>
+// ── Renderer & Scene ────────────────────────────────────────
+const canvas   = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x050c1a);
+scene.fog        = new THREE.FogExp2(0x0a1428, 0.00035);
+
+const camera = new THREE.PerspectiveCamera(62, 1, 0.5, 5000);
+
+function resize() {
+  const w = window.innerWidth;
+  const h = window.innerHeight - 52;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+
+// ── Lighting ────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x1a3060, 2.0));
+
+const sun = new THREE.DirectionalLight(0x9ab8ff, 2.5);
+sun.position.set(300, 600, 150);
+sun.castShadow = true;
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far  = 3000;
+sun.shadow.camera.left = sun.shadow.camera.bottom = -600;
+sun.shadow.camera.right = sun.shadow.camera.top   =  600;
+sun.shadow.mapSize.set(2048, 2048);
+scene.add(sun);
+scene.add(sun.target);
+
+const fillLight = new THREE.DirectionalLight(0x203050, 0.9);
+fillLight.position.set(-200, 100, -300);
+scene.add(fillLight);
+
+// ── Terrain ─────────────────────────────────────────────────
+const T_SIZE = 6000, T_SEGS = 128;
+
+function hAt(x, z) {
+  return 60  * Math.sin(x * 0.0038 + 0.4)
+       + 38  * Math.sin(z * 0.0052 + 1.3)
+       + 24  * Math.sin(x * 0.0088 + z * 0.007  + 0.9)
+       + 15  * Math.sin(x * 0.018  + 1.6)
+       + 10  * Math.sin(z * 0.015  + 2.1)
+       +  6  * Math.sin(x * 0.036  + z * 0.027  + 0.3)
+       +  3  * Math.sin(x * 0.072  + z * 0.055  + 1.7);
+}
+
+const tGeo = new THREE.PlaneGeometry(T_SIZE, T_SIZE, T_SEGS, T_SEGS);
+tGeo.rotateX(-Math.PI / 2);
+
+const tPos = tGeo.attributes.position;
+const vColors = new Float32Array(tPos.count * 3);
+for (let i = 0; i < tPos.count; i++) {
+  const x = tPos.getX(i), z = tPos.getZ(i);
+  const y = hAt(x, z);
+  tPos.setY(i, y);
+  const t = Math.max(0, Math.min(1, (y + 30) / 140));
+  vColors[i*3]   = 0.04 + t * 0.14;
+  vColors[i*3+1] = 0.14 + t * 0.22;
+  vColors[i*3+2] = 0.03 + t * 0.05;
+}
+tGeo.computeVertexNormals();
+tGeo.setAttribute('color', new THREE.BufferAttribute(vColors, 3));
+
+const terrain = new THREE.Mesh(tGeo, new THREE.MeshLambertMaterial({ vertexColors: true }));
+terrain.receiveShadow = true;
+scene.add(terrain);
+
+// Wireframe overlay for the grid look
+const wfGeo = new THREE.PlaneGeometry(T_SIZE, T_SIZE, 32, 32);
+wfGeo.rotateX(-Math.PI / 2);
+const wfPos = wfGeo.attributes.position;
+for (let i = 0; i < wfPos.count; i++) {
+  wfPos.setY(i, hAt(wfPos.getX(i), wfPos.getZ(i)) + 0.5);
+}
+wfGeo.computeVertexNormals();
+const wf = new THREE.Mesh(wfGeo, new THREE.MeshBasicMaterial({
+  color: 0x0d2030, wireframe: true, transparent: true, opacity: 0.18,
+}));
+scene.add(wf);
+
+// ── Clouds ───────────────────────────────────────────────────
+const cloudMat = new THREE.MeshLambertMaterial({ color: 0xc0d4f0, transparent: true, opacity: 0.60 });
+for (let i = 0; i < 35; i++) {
+  const g = new THREE.Group();
+  g.position.set((Math.random()-.5)*4000, 320+Math.random()*450, (Math.random()-.5)*4000);
+  for (let j = 0; j < 4+Math.floor(Math.random()*4); j++) {
+    const r = 22+Math.random()*34;
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 7, 5), cloudMat);
+    m.position.set((Math.random()-.5)*60, (Math.random()-.5)*14, (Math.random()-.5)*60);
+    g.add(m);
+  }
+  scene.add(g);
+}
+
+// ── Model configs ────────────────────────────────────────────
+const MODELS = {
+  kh25: { hex: 0x00c8ff, emv: 0x003344, label:'Kh-25',
+    maxThrust:420, liftCoeff:0.017, dragCoeff:0.0042, stallSpeed:55,
+    pitchRate:1.35, rollRate:1.8, throttleRate:0.55, initThrottle:0.52, initSpeed:145 },
+  kh26: { hex: 0xa855f7, emv: 0x1a0d30, label:'Kh-26',
+    maxThrust:390, liftCoeff:0.015, dragCoeff:0.0038, stallSpeed:65,
+    pitchRate:1.1,  rollRate:1.4, throttleRate:0.50, initThrottle:0.60, initSpeed:158 },
+};
+
+// ── Plane mesh factory ───────────────────────────────────────
+let planeMesh = null;
+let currentModel = 'kh25';
+
+function buildMesh(key) {
+  if (planeMesh) scene.remove(planeMesh);
+  const { hex, emv } = MODELS[key];
+  const g = new THREE.Group();
+
+  const bodyMat   = new THREE.MeshPhongMaterial({ color:0x0d1a2e, emissive:0x030810, shininess:55 });
+  const accentMat = new THREE.MeshPhongMaterial({ color:hex, emissive:emv, shininess:90 });
+  const edgeMat   = new THREE.LineBasicMaterial({ color:hex });
+  const glassMat  = new THREE.MeshPhongMaterial({ color:hex, emissive:emv, transparent:true, opacity:0.45, shininess:200 });
+
+  function mesh(geo, mat, shadow) {
+    const m = new THREE.Mesh(geo, mat);
+    if (shadow) { m.castShadow = true; m.receiveShadow = true; }
+    return m;
+  }
+  function edges(m) { m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat)); return m; }
+
+  // Fuselage
+  const fusGeo = new THREE.CylinderGeometry(0.30, 0.20, 6.0, 8);
+  fusGeo.rotateZ(Math.PI/2);
+  g.add(edges(mesh(fusGeo, bodyMat, true)));
+
+  // Nose cone
+  const noseGeo = new THREE.ConeGeometry(0.30, 1.4, 8);
+  noseGeo.rotateZ(-Math.PI/2);
+  const nose = mesh(noseGeo, accentMat, true);
+  nose.position.set(3.7, 0, 0);
+  g.add(nose);
+
+  // Tail cap
+  const tailGeo = new THREE.ConeGeometry(0.18, 0.7, 8);
+  tailGeo.rotateZ(Math.PI/2);
+  const tail = mesh(tailGeo, accentMat, false);
+  tail.position.set(-3.35, 0, 0);
+  g.add(tail);
+
+  // Main wings
+  for (const s of [1, -1]) {
+    const wg = new THREE.BoxGeometry(2.2, 0.10, 4.8);
+    const w  = edges(mesh(wg, bodyMat, true));
+    w.position.set(-0.5, 0, s * 2.4);
+    g.add(w);
+    // Winglet
+    const wlt = mesh(new THREE.BoxGeometry(0.55, 0.65, 0.10), accentMat, false);
+    wlt.position.set(-1.1, 0.32, s * 4.75);
+    g.add(wlt);
+  }
+
+  // Horizontal stabilizers
+  for (const s of [1, -1]) {
+    const sg = new THREE.BoxGeometry(1.3, 0.08, 2.4);
+    const st = edges(mesh(sg, bodyMat, false));
+    st.position.set(-2.6, 0, s * 1.2);
+    g.add(st);
+  }
+
+  // Vertical tail
+  const vtg = new THREE.BoxGeometry(1.2, 1.6, 0.10);
+  const vt  = edges(mesh(vtg, bodyMat, false));
+  vt.position.set(-2.4, 0.8, 0);
+  g.add(vt);
+
+  // Payload pod under fuselage
+  const pod = edges(mesh(new THREE.BoxGeometry(1.2, 0.45, 0.45), bodyMat, false));
+  pod.position.set(0.2, -0.38, 0);
+  g.add(pod);
+
+  // Cockpit window
+  const ck = mesh(new THREE.BoxGeometry(1.3, 0.28, 0.58), glassMat, false);
+  ck.position.set(1.6, 0.32, 0);
+  g.add(ck);
+
+  // Engine glow light
+  const eLight = new THREE.PointLight(hex, 2.0, 10);
+  eLight.position.set(-3.5, 0, 0);
+  eLight.name = 'eLight';
+  g.add(eLight);
+
+  // Nav LEDs
+  for (const [side, col] of [[4.75, 0xff3355], [-4.75, 0x00ff88]]) {
+    const led = new THREE.Mesh(new THREE.SphereGeometry(0.14, 6, 4), new THREE.MeshBasicMaterial({ color: col }));
+    led.position.set(-0.5, 0, side);
+    const lgt = new THREE.PointLight(col, 1.8, 5);
+    lgt.position.copy(led.position);
+    g.add(led);
+    g.add(lgt);
+  }
+
+  // Propeller disc (translucent)
+  const propGeo = new THREE.CircleGeometry(0.9, 16);
+  propGeo.rotateY(Math.PI/2);
+  const prop = new THREE.Mesh(propGeo, new THREE.MeshBasicMaterial({ color:hex, transparent:true, opacity:0.22, side:THREE.DoubleSide }));
+  prop.position.set(3.9, 0, 0);
+  prop.name = 'prop';
+  g.add(prop);
+
+  scene.add(g);
+  planeMesh = g;
+}
+
+// ── Physics ──────────────────────────────────────────────────
+const GRAVITY  = 260;
+const MAX_LIFT = 450;
+const MAX_SPD  = 580;
+
+let phys;
+
+const _fwd = new THREE.Vector3();
+const _up  = new THREE.Vector3();
+const _rgt = new THREE.Vector3();
+const _ax  = new THREE.Vector3();
+const _qd  = new THREE.Quaternion();
+const _axy = new THREE.Vector3(0, 1, 0);
+const _euler = new THREE.Euler();
+const _skyCol = new THREE.Color();
+const _camTarget = new THREE.Vector3();
+const _lookAt    = new THREE.Vector3();
+
+function axes(q) {
+  _fwd.set(1,0,0).applyQuaternion(q);
+  _up.set(0,1,0).applyQuaternion(q);
+  _rgt.set(0,0,1).applyQuaternion(q);
+}
+
+function spawn() {
+  const cfg = MODELS[currentModel];
+  const sx = 0, sz = 0;
+  const sy = hAt(sx, sz) + 380;
+  phys = {
+    pos: new THREE.Vector3(sx, sy, sz),
+    vel: new THREE.Vector3(cfg.initSpeed, 0, 0),
+    quat: new THREE.Quaternion(),
+    throttle: cfg.initThrottle,
+    battery:  100,
+    crashed:  false,
+    crashTimer: 0,
+    maxAlt: 0,
+    distanceTraveled: 0,
+    _groundY: hAt(sx, sz),
+    model: currentModel,
+  };
+  camera.position.set(sx - 20, sy + 7, sz);
+  camera.lookAt(phys.pos);
+  document.getElementById('crash').classList.remove('show');
+}
+
+// ── Input ─────────────────────────────────────────────────────
+const keys = {};
+const HANDLED = new Set(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD','KeyR','ShiftLeft','ShiftRight','ControlLeft','ControlRight']);
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (HANDLED.has(e.code)) e.preventDefault();
+  if (e.code === 'KeyR') spawn();
+});
+document.addEventListener('keyup', e => keys[e.code] = false);
+// Clear held keys when the tab loses focus so nothing gets "stuck"
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) Object.keys(keys).forEach(k => { keys[k] = false; });
+});
+
+// ── Touch input ───────────────────────────────────────────────
+const touch = { pitch: 0, roll: 0, thr: 0 };
+const _touchData = {};
+const _clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+const _touchOverlay = document.getElementById('touch-overlay');
+_touchOverlay.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  _touchData[e.pointerId] = { x: e.clientX, y: e.clientY, side: e.clientX < window.innerWidth / 2 ? 'l' : 'r' };
+  _touchOverlay.setPointerCapture(e.pointerId);
+});
+_touchOverlay.addEventListener('pointermove', e => {
+  const t = _touchData[e.pointerId];
+  if (!t) return;
+  const dx = (e.clientX - t.x) / 70;
+  const dy = (e.clientY - t.y) / 70;
+  if (t.side === 'l') { touch.roll = _clamp(dx, -1, 1); touch.pitch = _clamp(dy, -1, 1); }
+  else                { touch.thr  = _clamp(-dy, -1, 1); }
+});
+const _endTouch = e => {
+  const t = _touchData[e.pointerId];
+  if (!t) return;
+  if (t.side === 'l') { touch.roll = 0; touch.pitch = 0; }
+  else { touch.thr = 0; }
+  delete _touchData[e.pointerId];
+};
+_touchOverlay.addEventListener('pointerup',     _endTouch);
+_touchOverlay.addEventListener('pointercancel', _endTouch);
+
+// ── Update ────────────────────────────────────────────────────
+function update(dt) {
+  if (phys.crashed) {
+    phys.crashTimer -= dt;
+    document.getElementById('crash-msg').textContent =
+      phys.crashTimer > 0
+        ? `Respawning in ${Math.ceil(phys.crashTimer)}s  ·  Press R to reset now`
+        : 'Respawning…';
+    if (phys.crashTimer <= 0) spawn();
+    return;
+  }
+
+  const cfg = MODELS[phys.model];
+
+  const pitchIn = _clamp((keys['KeyW']||keys['ArrowUp']    ? 1:0) - (keys['KeyS']||keys['ArrowDown']  ? 1:0) + touch.pitch, -1, 1);
+  const rollIn  = _clamp((keys['KeyD']||keys['ArrowRight']  ? 1:0) - (keys['KeyA']||keys['ArrowLeft']  ? 1:0) + touch.roll,  -1, 1);
+  const thrIn   = _clamp((keys['ShiftLeft']||keys['ShiftRight'] ? 1:0) - (keys['ControlLeft']||keys['ControlRight'] ? 1:0) + touch.thr, -1, 1);
+
+  phys.throttle = Math.max(0, Math.min(1, phys.throttle + thrIn * cfg.throttleRate * dt));
+
+  axes(phys.quat);
+
+  if (pitchIn) {
+    _qd.setFromAxisAngle(_rgt, -pitchIn * cfg.pitchRate * dt);
+    phys.quat.multiply(_qd);
+  }
+  if (rollIn) {
+    _qd.setFromAxisAngle(_fwd, rollIn * cfg.rollRate * dt);
+    phys.quat.multiply(_qd);
+  }
+
+  // Auto-yaw: turn in direction of bank (coordinated turn)
+  axes(phys.quat);
+  const yawRate = _rgt.y * 0.65;
+  _qd.setFromAxisAngle(_axy, yawRate * dt);
+  phys.quat.premultiply(_qd);
+  phys.quat.normalize();
+  axes(phys.quat);
+
+  const spd = phys.vel.length();
+  _ax.set(0, -GRAVITY, 0);
+
+  // Thrust
+  _ax.addScaledVector(_fwd, phys.throttle * cfg.maxThrust);
+
+  // Lift
+  if (spd > 5) {
+    const sf = Math.min(1, spd / cfg.stallSpeed);
+    const lm = Math.min(MAX_LIFT, cfg.liftCoeff * spd * spd) * sf;
+    _ax.addScaledVector(_up, lm);
+  }
+
+  // Drag
+  if (spd > 5) {
+    _ax.addScaledVector(phys.vel, -(cfg.dragCoeff * spd * spd) / spd);
+  }
+
+  phys.vel.addScaledVector(_ax, dt);
+
+  const ns = phys.vel.length();
+  if (ns > MAX_SPD) phys.vel.multiplyScalar(MAX_SPD / ns);
+
+  phys.pos.addScaledVector(phys.vel, dt);
+  phys.distanceTraveled += Math.min(ns, MAX_SPD) * dt;
+
+  // Cache ground height for this position (reused by syncScene & updateHUD this frame)
+  phys._groundY = hAt(phys.pos.x, phys.pos.z);
+  const alt = phys.pos.y - phys._groundY;
+  if (alt > phys.maxAlt) phys.maxAlt = alt;
+
+  // Battery drain
+  phys.battery = Math.max(0, phys.battery - (0.25 + phys.throttle * 1.3) * dt);
+
+  // Ceiling
+  if (phys.pos.y > phys._groundY + 2400) { phys.pos.y = phys._groundY + 2400; if (phys.vel.y > 0) phys.vel.y = 0; }
+
+  // Soft terrain bounds
+  const HALF = T_SIZE * 0.44;
+  if (Math.abs(phys.pos.x) > HALF) { phys.pos.x = Math.sign(phys.pos.x)*HALF; phys.vel.x *= -0.3; }
+  if (Math.abs(phys.pos.z) > HALF) { phys.pos.z = Math.sign(phys.pos.z)*HALF; phys.vel.z *= -0.3; }
+
+  // Terrain collision
+  if (phys.pos.y <= phys._groundY + 2.5) {
+    phys.crashed = true;
+    phys.crashTimer = 2.8;
+    document.getElementById('crash-title').textContent = 'CRASHED';
+    document.getElementById('crash').classList.add('show');
+    return;
+  }
+
+  // Battery depletion → forced landing
+  if (phys.battery <= 0) {
+    phys.crashed = true;
+    phys.crashTimer = 3.5;
+    document.getElementById('crash-title').textContent = 'BATTERY DEAD';
+    document.getElementById('crash').classList.add('show');
+  }
+}
+
+// ── Scene sync ────────────────────────────────────────────────
+function syncScene() {
+  planeMesh.position.copy(phys.pos);
+  planeMesh.quaternion.copy(phys.quat);
+  planeMesh.visible = !phys.crashed;
+
+  // Engine light
+  const el = planeMesh.getObjectByName('eLight');
+  if (el) el.intensity = phys.crashed ? 0 : 0.8 + phys.throttle * 2.2;
+
+  // Prop spin
+  const prop = planeMesh.getObjectByName('prop');
+  if (prop) prop.rotation.x += phys.throttle * 0.25;
+
+  // Sun follows player (keep shadows near player)
+  sun.position.set(phys.pos.x+300, phys.pos.y+600, phys.pos.z+150);
+  sun.target.position.copy(phys.pos);
+  sun.target.updateMatrixWorld();
+
+  // Sky colour by altitude
+  const groundY = phys._groundY;
+  const altF = Math.max(0, Math.min(1, (phys.pos.y - groundY) / 1600));
+  const r = (5  + 8  * (1-altF)) / 255;
+  const g = (8  + 18 * (1-altF)) / 255;
+  const b = (20 + 38 * (1-altF)) / 255;
+  _skyCol.setRGB(r, g, b);
+  scene.background.copy(_skyCol);
+  scene.fog.color.setRGB(r+0.03, g+0.06, b+0.10);
+}
+
+// ── Camera ────────────────────────────────────────────────────
+function updateCamera() {
+  axes(phys.quat);
+  _camTarget.copy(phys.pos).addScaledVector(_fwd, -16).addScaledVector(_up, 5.5);
+  camera.position.lerp(_camTarget, 0.10);
+  _lookAt.copy(phys.pos).addScaledVector(_fwd, 10);
+  camera.lookAt(_lookAt);
+}
+
+// ── HUD ───────────────────────────────────────────────────────
+function updateHUD() {
+  const spd   = phys.vel.length();
+  const alt   = Math.max(0, phys.pos.y - phys._groundY);
+  const thr   = Math.round(phys.throttle * 100);
+  const bat   = Math.round(phys.battery);
+  const cfg   = MODELS[phys.model];
+
+  _euler.setFromQuaternion(phys.quat, 'YXZ');
+  const pitch   = Math.round(-_euler.x * 180 / Math.PI);
+  const roll    = Math.round( _euler.z * 180 / Math.PI);
+  const heading = Math.round((_euler.y * 180 / Math.PI + 360) % 360);
+
+  const stall  = spd < cfg.stallSpeed + 8;
+  const lowBat = bat < 20;
+
+  const $id = id => document.getElementById(id);
+  $id('h-spd').textContent   = Math.round(spd) + ' u/s';
+  $id('h-spd').className     = 'hv' + (stall ? ' w' : '');
+  $id('h-alt').textContent   = Math.round(alt) + ' m';
+  $id('h-alt').className     = 'hv' + (alt < 35 ? ' c' : '');
+  $id('h-pitch').textContent = (pitch >= 0 ? '+' : '') + pitch + '°';
+  $id('h-roll').textContent  = (roll  >= 0 ? '+' : '') + roll  + '°';
+  $id('h-hdg').textContent   = heading + '°';
+
+  $id('h-thr-pct').textContent = thr + '%';
+  $id('h-thr').style.width     = thr + '%';
+  $id('h-thr').style.background = thr > 75 ? 'var(--accent2)' : 'var(--accent)';
+
+  $id('h-bat-pct').textContent = bat + '%';
+  $id('h-bat').style.width     = bat + '%';
+  $id('h-bat').style.background = bat > 50 ? '#00ff88' : bat > 25 ? '#ffaa00' : '#ff4444';
+
+  $id('h-stall').style.display   = stall  ? 'block' : 'none';
+  $id('h-lowbat').style.display  = lowBat ? 'block' : 'none';
+
+  $id('s-dist').textContent = (phys.distanceTraveled / 100).toFixed(1) + ' km';
+  $id('s-alt').textContent  = Math.round(phys.maxAlt) + ' m';
+}
+
+// ── Model select ──────────────────────────────────────────────
+function selectModel(m) {
+  currentModel = m;
+  document.getElementById('b25').className = 'model-btn' + (m==='kh25'?' a25':'');
+  document.getElementById('b26').className = 'model-btn' + (m==='kh26'?' a26':'');
+  document.getElementById('h-model').textContent = MODELS[m].label + ' TELEMETRY';
+  document.getElementById('h-model').style.color = m==='kh25' ? 'var(--accent)' : 'var(--accent2)';
+  buildMesh(m);
+  spawn();
+}
+
+// ── Start ─────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  buildMesh('kh25');
+  resize();
+  spawn();
+
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    update(dt);
+    syncScene();
+    updateCamera();
+    updateHUD();
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+});
+</script>
+</body>
+</html>

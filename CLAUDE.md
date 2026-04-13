@@ -4,6 +4,48 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
+**KhachatryanUAV** is a static website for an Armenian UAV engineering company. No build step, no dependencies, no package manager — open any HTML file directly in a browser to preview.
+
+## Files
+
+- **`uav-website/index.html`** — Main landing page (single-file: CSS + HTML + JS all inline)
+- **`uav-website/simulator.html`** — Standalone 3D UAV flight simulator page (also single-file)
+
+## Architecture
+
+### index.html
+
+1. **CSS** — in a `<style>` block in `<head>`. Organized with section comments (e.g. `/* ── NAV */`, `/* ── HERO */`). Uses CSS custom properties defined in `:root` for the color theme.
+2. **HTML** — page sections in order: `<nav>`, `.hero`, `#about`, `#models`, `#donate`, `<footer>`
+3. **JavaScript** — inline `<script>` at the bottom. Handles mobile nav toggle, donation amount selection, and the (stub) `donate(method)` function.
+
+### simulator.html
+
+A full-screen 3D flight simulator built with raw Canvas/WebGL (no Three.js or other libraries). Key parts:
+- Fixed nav bar with model selector (Kh-25 / Kh-26) and a back link to `index.html`
+- `<canvas id="c">` occupies the remaining viewport below the nav
+- HUD overlay panels (left: flight data + battery bars; right: telemetry stats) rendered as HTML over the canvas
+- Controls legend panel (bottom-right)
+- All simulation logic is inline JavaScript at the bottom of the file
+
+The simulator uses `--accent2: #a855f7` (purple) instead of the orange used in `index.html`.
+
+## Theme / Design System
+
+Colors are controlled via CSS variables in `:root`:
+```css
+--accent:  #00c8ff   /* cyan — primary accent */
+--accent2: #ff6b00   /* orange — CTA buttons */
+--dark:    #080c14   /* page background */
+--card:    #0e1623   /* card backgrounds */
+```
+
+## Key Notes
+
+- The **donation system is frontend-only** — `donate(method)` shows an alert. Real payment integration (Stripe, PayPal SDK, crypto) needs to replace that function.
+- UAV illustrations are **inline SVGs** inside the HTML, not external image files.
+- Responsive breakpoints target mobile below `700px` via media queries.
+- The site targets **no external dependencies** — no frameworks, no CDN links.
 KhachatryanUAV is a single-page static website for an Armenian UAV engineering company, showcasing the Kh-25 and Kh-26 fixed-wing UAV platforms. The site includes a donation UI (frontend only — no payment backend is connected).
 
 ## Running the Site

@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KhachatryanUAV — Precision Aerial Systems</title>
+  <meta name="description" content="KhachatryanUAV designs and manufactures high-performance, long-range fixed-wing UAVs. SolidWorks CFD validated, ELRS radio, Armenian engineering." />
+  <meta name="author" content="Aghavard Khachatryan" />
+  <meta property="og:title" content="KhachatryanUAV — Precision Aerial Systems" />
+  <meta property="og:description" content="Designing and manufacturing high-performance, long-range FPV fixed-wing UAVs — built on SolidWorks simulation, ELRS radio, and precision engineering." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="KhachatryanUAV — Precision Aerial Systems" />
+  <meta name="twitter:description" content="High-performance, long-range fixed-wing UAVs from Armenian engineering." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,2 C17,2 17.5,8 17.5,13 L17.5,25 C17.5,28 17,30 16,31 C15,30 14.5,28 14.5,25 L14.5,13 C14.5,8 15,2 16,2 Z' fill='%2300c8ff'/%3E%3Cpath d='M16.5,10 L17.5,13 L30,19 L30,16 L16.5,10 Z' fill='%2300c8ff' opacity='.8'/%3E%3Cpath d='M15.5,10 L14.5,13 L2,19 L2,16 L15.5,10 Z' fill='%2300c8ff' opacity='.8'/%3E%3Cpath d='M16.5,23 L17,26 L24,28 L24,26 L16.5,23 Z' fill='%2300c8ff' opacity='.6'/%3E%3Cpath d='M15.5,23 L15,26 L8,28 L8,26 L15.5,23 Z' fill='%2300c8ff' opacity='.6'/%3E%3C/svg%3E" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,7 +22,7 @@
       --card:    #0e1623;
       --border:  #1a2640;
       --accent:  #00c8ff;
-      --accent2: #ff6b00;
+      --accent2: #a855f7;
       --text:    #cdd8e8;
       --muted:   #5a7090;
       --white:   #f0f6ff;
@@ -41,13 +50,13 @@
     .nav-logo-text span { color: var(--accent); }
     .nav-links { display: flex; gap: 2rem; list-style: none; }
     .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.3px; transition: color .2s; }
-    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
     .nav-donate {
       background: var(--accent2); color: #fff; border: none;
       padding: 7px 20px; border-radius: 7px; font-size: 0.85rem; font-weight: 700;
       cursor: pointer; text-decoration: none; transition: background .2s, transform .15s;
     }
-    .nav-donate:hover { background: #ff8c33; transform: translateY(-1px); }
+    .nav-donate:hover { background: #c084fc; transform: translateY(-1px); }
 
     /* ── HERO ───────────────────────────────── */
     .hero {
@@ -56,7 +65,7 @@
       text-align: center;
       background:
         radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,200,255,.10) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,107,0,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(168,85,247,.07) 0%, transparent 60%),
         var(--darker);
       position: relative; overflow: hidden;
     }
@@ -92,7 +101,7 @@
     .btn-primary { background: var(--accent); color: #000; }
     .btn-primary:hover { background: #33d4ff; transform: translateY(-2px); }
     .btn-orange { background: var(--accent2); color: #fff; }
-    .btn-orange:hover { background: #ff8c33; transform: translateY(-2px); }
+    .btn-orange:hover { background: #c084fc; transform: translateY(-2px); }
     .btn-ghost { border: 1px solid var(--border); color: var(--text); background: transparent; }
     .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
@@ -159,7 +168,7 @@
       margin-bottom: 1rem;
     }
     .badge-cyan { background: rgba(0,200,255,.12); color: var(--accent); border: 1px solid rgba(0,200,255,.25); }
-    .badge-orange { background: rgba(255,107,0,.12); color: var(--accent2); border: 1px solid rgba(255,107,0,.25); }
+    .badge-orange { background: rgba(168,85,247,.12); color: var(--accent2); border: 1px solid rgba(168,85,247,.25); }
     .model-name { font-size: 2.5rem; font-weight: 900; color: var(--white); margin-bottom: .25rem; }
     .model-tagline { font-size: .85rem; color: var(--muted); text-align: center; }
 
@@ -169,7 +178,7 @@
 
     /* Kh-26 SVG drone */
     .drone-kh26 { margin: 1.5rem auto; }
-    .drone-kh26 svg { width: 220px; filter: drop-shadow(0 0 20px rgba(255,107,0,.35)); }
+    .drone-kh26 svg { width: 220px; filter: drop-shadow(0 0 20px rgba(168,85,247,.35)); }
 
     .model-body { padding: 1.75rem 2rem; }
     .model-specs { list-style: none; display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.5rem; }
@@ -191,7 +200,7 @@
     /* ── DONATE ─────────────────────────────── */
     #donate {
       background:
-        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,107,0,.10) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(168,85,247,.10) 0%, transparent 70%),
         var(--darker);
     }
     .donate-wrap { max-width: 680px; margin: 0 auto; }
@@ -219,7 +228,7 @@
       font-family: inherit; width: 100%;
     }
     .amount-btn:hover, .amount-btn.active {
-      border-color: var(--accent2); background: rgba(255,107,0,.08); color: var(--accent2);
+      border-color: var(--accent2); background: rgba(168,85,247,.08); color: var(--accent2);
     }
 
     .donate-custom { margin-bottom: 1.5rem; }
@@ -239,7 +248,7 @@
       padding: .9rem 1.25rem; border-radius: 10px;
       cursor: pointer; transition: all .2s; text-align: left; width: 100%;
     }
-    .method-btn:hover { border-color: var(--accent2); background: rgba(255,107,0,.06); }
+    .method-btn:hover { border-color: var(--accent2); background: rgba(168,85,247,.06); }
     .method-icon { font-size: 1.4rem; }
     .method-info { display: flex; flex-direction: column; }
     .method-name { font-weight: 700; color: var(--white); }
@@ -260,10 +269,16 @@
     .progress-bar { height: 8px; background: var(--dark); border-radius: 999px; overflow: hidden; }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--accent2), #ffb347);
+      background: linear-gradient(90deg, var(--accent2), #c084fc);
       border-radius: 999px;
-      width: 34%;
+      width: 0;
+      animation: fillBar 1.4s ease-out .3s forwards;
     }
+    @keyframes fillBar { to { width: 34%; } }
+
+    .donate-custom input.error { border-color: #ff4444; }
+    .donate-error { font-size: .78rem; color: #ff4444; margin-top: .35rem; display: none; }
+    .donate-error.visible { display: block; }
     .progress-goal { font-size: .72rem; color: var(--muted); margin-top: .4rem; text-align: right; }
 
     /* ── FOOTER ─────────────────────────────── */
@@ -311,7 +326,7 @@
 <body>
 
 <!-- ── NAV ── -->
-<nav>
+<nav aria-label="Main navigation">
   <a class="nav-logo" href="#">
     <svg class="nav-logo-icon" viewBox="0 0 32 32" fill="none">
       <!-- Fuselage -->
@@ -325,10 +340,11 @@
     </svg>
     <span class="nav-logo-text"><span>Khachatryan</span>UAV</span>
   </a>
-  <ul class="nav-links">
+  <ul class="nav-links" aria-label="Site sections">
     <li><a href="#about">About</a></li>
     <li><a href="#models">Models</a></li>
     <li><a href="#donate">Donate</a></li>
+    <li><a href="simulator.html">Simulator</a></li>
   </ul>
   <a class="nav-donate" href="#donate">Support Us</a>
   <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
@@ -339,6 +355,7 @@
   <a href="#about" onclick="closeMobileMenu()">About</a>
   <a href="#models" onclick="closeMobileMenu()">Models</a>
   <a href="#donate" onclick="closeMobileMenu()">Donate</a>
+  <a href="simulator.html" onclick="closeMobileMenu()">Simulator</a>
 </div>
 
 <!-- ── HERO ── -->
@@ -352,7 +369,7 @@
   <div class="hero-btns">
     <a class="btn btn-primary" href="#models">Our Models</a>
     <a class="btn btn-orange" href="#donate">Support Development</a>
-    <a class="btn btn-ghost" href="#about">About Us</a>
+    <a class="btn btn-ghost" href="simulator.html">Try Simulator</a>
   </div>
 
   <div class="hero-drone">
@@ -508,39 +525,39 @@
       <div class="model-card kh26">
         <div class="model-header">
           <div class="model-badge badge-orange">LONG-RANGE</div>
-          <div class="model-name" style="color:#ff8c33;">Kh-26</div>
+          <div class="model-name" style="color:#c084fc;">Kh-26</div>
           <div class="model-tagline">2-meter span. 2+ hours. Built to go far.</div>
           <div class="drone-kh26">
             <svg viewBox="0 0 240 190" fill="none" xmlns="http://www.w3.org/2000/svg">
               <!-- Fuselage — wider/heavier -->
-              <path d="M120,7 C126,7 131,33 132,60 L133,126 C133,153 129,172 120,178 C111,172 107,153 107,126 L108,60 C109,33 114,7 120,7 Z" fill="#1f1008" stroke="#ff6b00" stroke-width="1.5"/>
+              <path d="M120,7 C126,7 131,33 132,60 L133,126 C133,153 129,172 120,178 C111,172 107,153 107,126 L108,60 C109,33 114,7 120,7 Z" fill="#100c1f" stroke="#a855f7" stroke-width="1.5"/>
               <!-- Cockpit window -->
-              <rect x="115" y="22" width="10" height="26" rx="4" fill="#0f0804" stroke="#ff6b00" stroke-width="1" opacity=".85"/>
+              <rect x="115" y="22" width="10" height="26" rx="4" fill="#0b0817" stroke="#a855f7" stroke-width="1" opacity=".85"/>
               <!-- Main wings (right) — larger sweep -->
-              <path d="M126,44 L132,60 L226,96 L227,82 L126,44 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.3"/>
+              <path d="M126,44 L132,60 L226,96 L227,82 L126,44 Z" fill="#0e0c1e" stroke="#a855f7" stroke-width="1.3"/>
               <!-- Main wings (left) -->
-              <path d="M114,44 L108,60 L14,96 L13,82 L114,44 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.3"/>
+              <path d="M114,44 L108,60 L14,96 L13,82 L114,44 Z" fill="#0e0c1e" stroke="#a855f7" stroke-width="1.3"/>
               <!-- Engine pods on wings -->
-              <ellipse cx="186" cy="80" rx="16" ry="5.5" fill="#0a0804" stroke="#ff6b00" stroke-width="1.1"/>
-              <ellipse cx="54"  cy="80" rx="16" ry="5.5" fill="#0a0804" stroke="#ff6b00" stroke-width="1.1"/>
+              <ellipse cx="186" cy="80" rx="16" ry="5.5" fill="#08081a" stroke="#a855f7" stroke-width="1.1"/>
+              <ellipse cx="54"  cy="80" rx="16" ry="5.5" fill="#08081a" stroke="#a855f7" stroke-width="1.1"/>
               <!-- Horizontal stabs (right) — wider -->
-              <path d="M126,132 L130,142 L186,150 L186,141 L126,132 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.1"/>
+              <path d="M126,132 L130,142 L186,150 L186,141 L126,132 Z" fill="#0e0c1e" stroke="#a855f7" stroke-width="1.1"/>
               <!-- Horizontal stabs (left) -->
-              <path d="M114,132 L110,142 L54,150 L54,141 L114,132 Z" fill="#140a04" stroke="#ff6b00" stroke-width="1.1"/>
+              <path d="M114,132 L110,142 L54,150 L54,141 L114,132 Z" fill="#0e0c1e" stroke="#a855f7" stroke-width="1.1"/>
               <!-- Vertical fin -->
-              <rect x="118" y="122" width="4" height="54" rx="1" fill="#ff6b00" opacity=".28"/>
+              <rect x="118" y="122" width="4" height="54" rx="1" fill="#a855f7" opacity=".28"/>
               <!-- Front motor spinner (larger) -->
-              <circle cx="120" cy="13" r="7" fill="#0a0804" stroke="#ff6b00" stroke-width="1.5"/>
-              <circle cx="120" cy="13" r="3" fill="#ff6b00" opacity=".8"/>
+              <circle cx="120" cy="13" r="7" fill="#08081a" stroke="#a855f7" stroke-width="1.5"/>
+              <circle cx="120" cy="13" r="3" fill="#a855f7" opacity=".8"/>
               <!-- Tractor prop disc -->
-              <ellipse cx="120" cy="9" rx="34" ry="6" fill="#ff6b00" opacity=".16"/>
-              <ellipse cx="120" cy="9" rx="6"  ry="34" fill="#ff6b00" opacity=".10"/>
-              <circle cx="120" cy="9" r="16" fill="none" stroke="#ff6b00" stroke-width=".5" opacity=".2"/>
+              <ellipse cx="120" cy="9" rx="34" ry="6" fill="#a855f7" opacity=".16"/>
+              <ellipse cx="120" cy="9" rx="6"  ry="34" fill="#a855f7" opacity=".10"/>
+              <circle cx="120" cy="9" r="16" fill="none" stroke="#a855f7" stroke-width=".5" opacity=".2"/>
               <!-- Under-fuselage payload bay -->
-              <rect x="113" y="78" width="14" height="32" rx="4" fill="#0a0804" stroke="#ff6b00" stroke-width="1.1"/>
-              <circle cx="120" cy="97" r="5" fill="#ff6b00" opacity=".4"/>
+              <rect x="113" y="78" width="14" height="32" rx="4" fill="#08081a" stroke="#a855f7" stroke-width="1.1"/>
+              <circle cx="120" cy="97" r="5" fill="#a855f7" opacity=".4"/>
               <!-- Tail end cap -->
-              <circle cx="120" cy="173" r="4" fill="#0a0804" stroke="#ff6b00" stroke-width="1" opacity=".4"/>
+              <circle cx="120" cy="173" r="4" fill="#08081a" stroke="#a855f7" stroke-width="1" opacity=".4"/>
               <!-- LEDs -->
               <circle cx="225" cy="84" r="3.5" fill="#ff3355" opacity=".9"/>
               <circle cx="15"  cy="84" r="3.5" fill="#00ff88" opacity=".9"/>
@@ -611,7 +628,8 @@
           <!-- Custom amount -->
           <div class="donate-custom">
             <label for="customAmount">Custom Amount (USD)</label>
-            <input type="number" id="customAmount" placeholder="Enter amount..." min="1" />
+            <input type="number" id="customAmount" placeholder="Enter amount..." min="1" aria-describedby="amountError" />
+            <div class="donate-error" id="amountError" role="alert">Please enter a valid amount (minimum $1).</div>
           </div>
 
           <!-- Payment methods -->
@@ -664,30 +682,46 @@
 </footer>
 
 <script>
+  // ── Amount selection ──────────────────────────
   function selectAmount(el, amount) {
     document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('customAmount').value = amount;
+    const input = document.getElementById('customAmount');
+    input.value = amount;
+    clearAmountError();
   }
 
-  // set default
   document.getElementById('customAmount').value = 50;
 
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobileMenu');
-  hamburger.addEventListener('click', () => {
-    const open = mobileMenu.classList.toggle('open');
-    hamburger.classList.toggle('open', open);
-    hamburger.setAttribute('aria-expanded', open);
+  // Typing a custom amount deselects preset buttons
+  document.getElementById('customAmount').addEventListener('input', () => {
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+    clearAmountError();
   });
-  function closeMobileMenu() {
-    mobileMenu.classList.remove('open');
-    hamburger.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', false);
+
+  // ── Amount validation ─────────────────────────
+  function clearAmountError() {
+    document.getElementById('customAmount').classList.remove('error');
+    document.getElementById('amountError').classList.remove('visible');
   }
 
+  function getValidAmount() {
+    const input = document.getElementById('customAmount');
+    const val = parseFloat(input.value);
+    if (!val || val < 1) {
+      input.classList.add('error');
+      document.getElementById('amountError').classList.add('visible');
+      input.focus();
+      return null;
+    }
+    clearAmountError();
+    return val;
+  }
+
+  // ── Donate stub ───────────────────────────────
   function donate(method) {
-    const amount = document.getElementById('customAmount').value || 50;
+    const amount = getValidAmount();
+    if (!amount) return;
     const messages = {
       paypal: `Redirecting to PayPal for $${amount} donation...`,
       crypto: `Opening crypto wallet for $${amount} equivalent donation...`,
@@ -695,6 +729,47 @@
     };
     alert(messages[method] + '\n\n(Connect your payment processor here.)');
   }
+
+  // ── Mobile menu ───────────────────────────────
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  hamburger.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    hamburger.classList.toggle('open', open);
+    hamburger.setAttribute('aria-expanded', open);
+  });
+
+  function closeMobileMenu() {
+    mobileMenu.classList.remove('open');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', false);
+  }
+
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (mobileMenu.classList.contains('open') &&
+        !mobileMenu.contains(e.target) &&
+        !hamburger.contains(e.target)) {
+      closeMobileMenu();
+    }
+  });
+
+  // ── Active nav link on scroll ─────────────────
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+
+  sections.forEach(s => observer.observe(s));
 </script>
 </body>
 </html>
