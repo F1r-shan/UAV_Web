@@ -321,6 +321,14 @@
       nav { padding: 0 1.25rem; }
       .hamburger { display: flex; }
     }
+
+    /* ── REVEAL ANIMATIONS ──────────────────── */
+    @keyframes reveal-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; }
+    .reveal.visible { animation: reveal-up .6s ease forwards; }
   </style>
 </head>
 <body>
@@ -770,6 +778,35 @@
   }, { rootMargin: '-40% 0px -55% 0px' });
 
   sections.forEach(s => observer.observe(s));
+
+  // ── Scroll reveal ─────────────────────────
+  const revealTargets = document.querySelectorAll(
+    '.about-text, .about-stats, .astat, .pillar, .model-card, .donate-card'
+  );
+
+  // Assign stagger delays to siblings within group containers
+  ['.about-stats', '.about-pillars', '.models-grid'].forEach(sel => {
+    const parent = document.querySelector(sel);
+    if (!parent) return;
+    Array.from(parent.children).forEach((child, i) => {
+      if (i > 0) child.dataset.revealDelay = i * 120;
+    });
+  });
+
+  revealTargets.forEach(el => el.classList.add('reveal'));
+
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const delay = e.target.dataset.revealDelay || 0;
+        e.target.style.animationDelay = delay + 'ms';
+        e.target.classList.add('visible');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.10 });
+
+  revealTargets.forEach(el => revealObs.observe(el));
 </script>
 </body>
 </html>
